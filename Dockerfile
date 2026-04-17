@@ -1,22 +1,18 @@
 FROM node:18
 
-# تثبيت الأدوات
-RUN apt-get update && apt-get install -y wget unzip
+RUN apt-get update && apt-get install -y wget unzip libglu1-mesa
 
-# تحميل texconv
-RUN wget https://github.com/microsoft/DirectXTex/releases/latest/download/texconv_linux.zip \
-    && unzip texconv_linux.zip \
+# تحميل texconv الصحيح
+RUN wget https://github.com/microsoft/DirectXTex/releases/download/jul2023/texconv_linux_x64.zip \
+    && unzip texconv_linux_x64.zip \
     && chmod +x texconv \
     && mv texconv /usr/local/bin/
 
-# إنشاء مجلد المشروع
 WORKDIR /app
 
-# نسخ الملفات
 COPY package*.json ./
 RUN npm install
 
 COPY . .
 
-# تشغيل السيرفر
 CMD ["node", "index.js"]

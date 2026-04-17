@@ -1,10 +1,11 @@
 FROM node:18
 
-RUN apt-get update && apt-get install -y wget unzip libglu1-mesa
+RUN apt-get update && apt-get install -y wget unzip
 
 # تحميل texconv الصحيح
-RUN wget https://github.com/microsoft/DirectXTex/releases/download/jul2023/texconv_linux_x64.zip \
-    && unzip texconv_linux_x64.zip \
+RUN wget https://github.com/microsoft/DirectXTex/releases/latest/download/texconv_linux_x64.zip \
+    -O texconv.zip \
+    && unzip texconv.zip \
     && chmod +x texconv \
     && mv texconv /usr/local/bin/
 

@@ -1,21 +1,24 @@
-const express = require("express");
-const multer = require("multer");
-const cors = require("cors");
-
-const app = express();
-app.use(cors());
-
-const upload = multer({ dest: "uploads/" });
+const { exec } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 app.post("/convert", upload.single("image"), (req, res) => {
   const input = req.file.path;
 
-  // تجربة فقط (يرجع نفس الصورة)
-  res.download(input);
-});
+  exec(`texconv -f DXT5 -o uploads ${input}`, (err) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send("Conversion failed");
+    }
 
-app.get("/", (req, res) => {
-  res.send("Server is running ✅");
-});
+    const output = path.join(
+      "uploads",
+      path.basename(input, path.extname(input)) + ".DDS"
+    );
 
-app.listen(3000, () => console.log("Server running"));
+    res.download(output, () => {
+      fs.unlinkSync(input);
+      fs.unlinkSync(output);
+    });
+  });
+});

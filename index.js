@@ -14,7 +14,10 @@ app.post("/convert", upload.single("image"), (req, res) => {
   const input = req.file.path;
 
   exec(`texconv -f DXT5 -o uploads ${input}`, (err) => {
-    if (err) return res.status(500).send("error");
+  if (err) {
+    console.log(err);
+    return res.status(500).send("error");
+  }
 
     const output = path.join(
       "uploads",

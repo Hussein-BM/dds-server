@@ -1,36 +1,24 @@
-const express = require("express");
-const multer = require("multer");
-const cors = require("cors");
-const sharp = require("sharp");
+const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const app = express();
-app.use(cors());
+app.post("/convert", upload.single("image"), (req, res) => {
+  const input = req.file.path;
 
-const upload = multer({ dest: "uploads/" });
+  exec(`texconv -f DXT5 -o uploads ${input}`, (err) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send("error");
+    }
 
-app.post("/convert", upload.single("image"), async (req, res) => {
-  try {
-    const input = req.file.path;
-    const output = input + ".png";
+    const output = path.join(
+      "uploads",
+      path.basename(input, path.extname(input)) + ".DDS"
+    );
 
-    // تحويل بسيط (نجرب أول)
-    await sharp(input).png().toFile(output);
-
-    res.download(output, () => {
+    res.download(output, "converted.dds", () => {
       fs.unlinkSync(input);
       fs.unlinkSync(output);
     });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("error");
-  }
+  });
 });
-
-app.get("/", (req, res) => {
-  res.send("Server running ✅");
-});
-
-app.listen(3000, () => console.log("Server running"));
